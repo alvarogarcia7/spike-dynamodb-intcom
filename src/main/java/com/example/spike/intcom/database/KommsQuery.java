@@ -9,8 +9,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
-import com.amazonaws.services.dynamodbv2.model.Condition;
 
 public class KommsQuery {
 
@@ -30,8 +28,6 @@ public class KommsQuery {
         DynamoDBMapper mapper = new DynamoDBMapper(dynamoDB);
 
         System.out.println("Matching items:");
-        HashMap<String, Condition> queryFilters = new HashMap<>();
-        queryFilters.put("tags", new Condition().withComparisonOperator(ComparisonOperator.CONTAINS).withAttributeValueList(new AttributeValue("meeting")));
         Komm komm = new Komm(username, "", "", "");
 
         PaginatedQueryList<Komm> matchingItems = mapper.query(Komm.class,
