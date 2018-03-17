@@ -19,10 +19,10 @@ public class KommsQuery {
         final HashMap<String, AttributeValue> attributeValues = new HashMap<>();
         attributeValues.put(":value1", new AttributeValue("meeting"));
         attributeValues.put(":value2", new AttributeValue("headline"));
-        queryByTags("bob", attributeNames, attributeValues);
+        queryByTagsFilteringOr("bob", attributeNames, attributeValues);
     }
 
-    private static void queryByTags(String username, Map<String, String> attributeNames, Map<String, AttributeValue> values) {
+    private static void queryByTagsFilteringOr(String username, Map<String, String> attributeNames, Map<String, AttributeValue> values) {
 
         final AmazonDynamoDB dynamoDB = LocalClient.client;
         DynamoDBMapper mapper = new DynamoDBMapper(dynamoDB);
