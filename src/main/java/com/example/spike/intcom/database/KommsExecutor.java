@@ -1,13 +1,20 @@
 package com.example.spike.intcom.database;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Random;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
 import org.jetbrains.annotations.NotNull;
 
 public class KommsExecutor {
@@ -18,19 +25,21 @@ public class KommsExecutor {
 
     @DynamoDBTable(tableName = "Komms")
     public static class Komm {
-        private String authorDate;
+        private String author;
         private String body;
         private String tags;
         private String date;
 
         // Partition key
-        @DynamoDBHashKey(attributeName = "author-date")
-        public String getAuthorDate() {
-            return this.authorDate;
+        @DynamoDBHashKey(attributeName = "author")
+        public String getAuthor() {
+            return this.author;
         }
 
-        public void setAuthorDate(String authorDate) {
-            this.authorDate = authorDate;
+        @DynamoDBRangeKey(attributeName = "date")
+        @DynamoDBAttribute(attributeName = "date")
+        public String getDate() {
+            return this.date;
         }
 
         @DynamoDBAttribute(attributeName = "body")
@@ -38,23 +47,21 @@ public class KommsExecutor {
             return this.body;
         }
 
-        public void setBody(String body) {
-            this.body = body;
-        }
-
         @DynamoDBAttribute(attributeName = "tags")
         public String getTags() {
             return this.tags;
         }
 
-        public void setTags(String tags) {
-            this.tags = tags;
+        public void setAuthor(String author) {
+            this.author = author;
         }
 
-        @DynamoDBRangeKey(attributeName = "date")
-        @DynamoDBAttribute(attributeName = "date")
-        public String getDate() {
-            return this.date;
+        public void setBody(String body) {
+            this.body = body;
+        }
+
+        public void setTags(String tags) {
+            this.tags = tags;
         }
 
         public void setDate(String date) {
@@ -64,7 +71,7 @@ public class KommsExecutor {
         @Override
         public String toString() {
             final StringBuffer sb = new StringBuffer("Komm{");
-            sb.append("authorDate='").append(this.authorDate).append('\'');
+            sb.append("author='").append(this.author).append('\'');
             sb.append(", body='").append(this.body).append('\'');
             sb.append(", tags='").append(this.tags).append('\'');
             sb.append(", date='").append(this.date).append('\'');
@@ -75,18 +82,25 @@ public class KommsExecutor {
 
     private static void workWithKomms() {
 
-        DynamoDBMapper mapper = new DynamoDBMapper(LocalClient.client);
+        final AmazonDynamoDB dynamoDB = LocalClient.client;
+        DynamoDBMapper mapper = new DynamoDBMapper(dynamoDB);
 
-        final long randomValue1 = newRandomValue();
-        final String hashKey1 = saveItem(randomValue1, mapper);
-        final String hashKey2 = saveItem(newRandomValue(), mapper);
+        final String randomValue1 = newRandomValue();
+        final String hashKey1 = saveItem("alvaro", randomValue1, mapper);
+        final String hashKey2 = saveItem("alvaro", newRandomValue(), mapper);
 
         // Retrieve the item.
-        Komm itemRetrieved = mapper.load(Komm.class, hashKey1, "" + randomValue1);
+        Komm itemRetrieved = mapper.load(Komm.class, hashKey1, randomValue1);
         System.out.println("Item retrieved:");
         System.out.println(itemRetrieved);
 
-        //        mapper.query(Komm.class, new DynamoDBQueryExpression<Komm>().)
+        System.out.println("Matching items:");
+        HashMap<String, Condition> queryFilters = new HashMap<>();
+        queryFilters.put("tags", new Condition().withComparisonOperator(ComparisonOperator.CONTAINS).withAttributeValueList(new AttributeValue("meeting")));
+        final Komm hashKey11 = new Komm();
+        hashKey11.setAuthor("alvaro");
+        PaginatedQueryList<Komm> matchingItems = mapper.query(Komm.class, new DynamoDBQueryExpression<Komm>().withHashKeyValues(hashKey11).withQueryFilter(queryFilters));
+        matchingItems.parallelStream().forEach(System.out::println);
 
         //        // Update the item.
         //        itemRetrieved.setISBN("622-2222222222");
@@ -105,22 +119,21 @@ public class KommsExecutor {
         //        mapper.delete(updatedItem);
         //
         //        // Try to retrieve deleted item.
-        //        Komm deletedItem = mapper.load(Komm.class, updatedItem.getAuthorDate(), config);
+        //        Komm deletedItem = mapper.load(Komm.class, updatedItem.getAuthor(), config);
         //        if (deletedItem == null) {
         //            System.out.println("Done - Sample item is deleted.");
         //        }
     }
 
-    private static long newRandomValue() {
-        return Math.abs(new Random().nextLong());
+    private static String newRandomValue() {
+        return "" + Math.abs(new Random().nextLong());
     }
 
     @NotNull
-    private static String saveItem(long date, DynamoDBMapper mapper) {
+    private static String saveItem(String hashKey, String date, DynamoDBMapper mapper) {
         Komm item = new Komm();
-        final String hashKey = "alvaro-12" + date;
-        item.setAuthorDate(hashKey);
-        item.setDate("" + date);
+        item.setAuthor(hashKey + "#" + date);
+        item.setDate(date);
         item.setBody("heheh");
         item.setTags("alvaro-meeting");
 

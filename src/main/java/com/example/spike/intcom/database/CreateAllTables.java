@@ -35,9 +35,9 @@ public class CreateAllTables {
             projection.setProjectionType(ProjectionType.INCLUDE);
             globalSecondaryIndex.setProjection(projection);
             globalSecondaryIndex.setProvisionedThroughput(provisionedThroughput);
-            final List<KeySchemaElement> keys = Arrays.asList(new KeySchemaElement("author-date", KeyType.HASH), new KeySchemaElement("date", KeyType.RANGE));
+            final List<KeySchemaElement> keys = Arrays.asList(new KeySchemaElement("author", KeyType.HASH), new KeySchemaElement("date", KeyType.RANGE));
             final List<AttributeDefinition> attributes =
-                    Arrays.asList(new AttributeDefinition("author-date", ScalarAttributeType.S), new AttributeDefinition("date", ScalarAttributeType.S),
+                    Arrays.asList(new AttributeDefinition("author", ScalarAttributeType.S), new AttributeDefinition("date", ScalarAttributeType.S),
                             new AttributeDefinition("tags", ScalarAttributeType.S));
 
             createTableRequest.withKeySchema(keys).withTableName(tableName).withAttributeDefinitions(attributes).withGlobalSecondaryIndexes(Arrays.asList(globalSecondaryIndex))
