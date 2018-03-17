@@ -8,6 +8,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import org.jetbrains.annotations.NotNull;
 
 public class KommsExecutor {
 
@@ -74,21 +75,18 @@ public class KommsExecutor {
 
     private static void workWithKomms() {
 
-        Komm item = new Komm();
-        final long date = Math.abs(new Random().nextLong());
-        final String hashKey = "alvaro-12" + date;
-        item.setAuthorDate(hashKey);
-        item.setDate("" + date);
-        item.setBody("heheh");
-        item.setTags("alvaro-meeting");
-
         DynamoDBMapper mapper = new DynamoDBMapper(LocalClient.client);
-        mapper.save(item);
+
+        final long randomValue1 = newRandomValue();
+        final String hashKey1 = saveItem(randomValue1, mapper);
+        final String hashKey2 = saveItem(newRandomValue(), mapper);
 
         // Retrieve the item.
-        Komm itemRetrieved = mapper.load(Komm.class, hashKey, "" + date);
+        Komm itemRetrieved = mapper.load(Komm.class, hashKey1, "" + randomValue1);
         System.out.println("Item retrieved:");
         System.out.println(itemRetrieved);
+
+        //        mapper.query(Komm.class, new DynamoDBQueryExpression<Komm>().)
 
         //        // Update the item.
         //        itemRetrieved.setISBN("622-2222222222");
@@ -111,5 +109,22 @@ public class KommsExecutor {
         //        if (deletedItem == null) {
         //            System.out.println("Done - Sample item is deleted.");
         //        }
+    }
+
+    private static long newRandomValue() {
+        return Math.abs(new Random().nextLong());
+    }
+
+    @NotNull
+    private static String saveItem(long date, DynamoDBMapper mapper) {
+        Komm item = new Komm();
+        final String hashKey = "alvaro-12" + date;
+        item.setAuthorDate(hashKey);
+        item.setDate("" + date);
+        item.setBody("heheh");
+        item.setTags("alvaro-meeting");
+
+        mapper.save(item);
+        return hashKey;
     }
 }
