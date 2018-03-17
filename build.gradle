@@ -1,0 +1,57 @@
+buildscript {
+    ext.kotlin_version = '1.2.30'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+group 'com.example.spike'
+version '0.0.1-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+sourceCompatibility = 1.8
+
+ext.sqlite4javaVersion = '1.0.392'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://s3.eu-central-1.amazonaws.com/dynamodb-local-frankfurt/release'
+    }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile 'com.amazonaws:DynamoDBLocal:[1.11,2.0)'
+    compile "com.almworks.sqlite4java:sqlite4java:${sqlite4javaVersion}"
+//    compile "com.almworks.sqlite4java:libsqlite4java-osx:${sqlite4javaVersion}"
+
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+task execute(type: JavaExec) {
+    main = project.hasProperty("mainClass") ? project.getProperty("mainClass") : "com.example.spike.intcom.database.LocalDynamoDB"
+    systemProperty('sqlite4java.library.path', 'target/dependencies')
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task copyDependencies(type: Copy) {
+    from configurations.compile
+    into 'target/dependencies'
+}
+
+execute.dependsOn(copyDependencies)
