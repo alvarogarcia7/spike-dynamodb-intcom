@@ -15,10 +15,16 @@ import com.amazonaws.services.dynamodbv2.model.Condition;
 public class KommsQuery {
 
     public static void main(String[] args) throws IOException {
-        workWithKomms();
+        final HashMap<String, String> attributeNames = new HashMap<>();
+        attributeNames.put("#v1", "tags");
+        attributeNames.put("#v2", "tags");
+        final HashMap<String, AttributeValue> attributeValues = new HashMap<>();
+        attributeValues.put(":value1", new AttributeValue("meeting"));
+        attributeValues.put(":value2", new AttributeValue("headline"));
+        queryByTags("bob", attributeNames, attributeValues);
     }
 
-    private static void workWithKomms() {
+    private static void queryByTags(String username, Map<String, String> attributeNames, Map<String, AttributeValue> values) {
 
         final AmazonDynamoDB dynamoDB = LocalClient.client;
         DynamoDBMapper mapper = new DynamoDBMapper(dynamoDB);
@@ -26,17 +32,10 @@ public class KommsQuery {
         System.out.println("Matching items:");
         HashMap<String, Condition> queryFilters = new HashMap<>();
         queryFilters.put("tags", new Condition().withComparisonOperator(ComparisonOperator.CONTAINS).withAttributeValueList(new AttributeValue("meeting")));
-        //            queryFilters.put("tags", new Condition().withComparisonOperator(ComparisonOperator.NOT_CONTAINS).withAttributeValueList(new AttributeValue("meeting")));
-        Komm komm = new Komm("bob", "", "", "");
-        Map<String, String> aN = new HashMap<>();
-        aN.put("#v1", "tags");
-        aN.put("#v2", "tags");
-        Map<String, AttributeValue> vs = new HashMap<>();
-        vs.put(":value1", new AttributeValue("meeting"));
-        vs.put(":value2", new AttributeValue("headline"));
+        Komm komm = new Komm(username, "", "", "");
 
         PaginatedQueryList<Komm> matchingItems = mapper.query(Komm.class,
-                new DynamoDBQueryExpression<Komm>().withHashKeyValues(komm).withExpressionAttributeNames(aN).withExpressionAttributeValues(vs)
+                new DynamoDBQueryExpression<Komm>().withHashKeyValues(komm).withExpressionAttributeNames(attributeNames).withExpressionAttributeValues(values)
                         .withFilterExpression("contains(#v1, :value1) or contains(#v2, :value2)"));
         matchingItems.parallelStream().forEach(System.out::println);
     }
