@@ -19,10 +19,10 @@ public class KommsPumper {
         DynamoDBMapper mapper = new DynamoDBMapper(dynamoDB);
 
         final String dateValue = newDateValue();
-        final String hashKeyAlvaro1 = saveItem("alvaro", dateValue, mapper);
-        final String hashKeyAlvaro2 = saveItem("alvaro", newDateValue(), mapper);
-        final String hashKeyBob1 = saveItem("bob", newDateValue(), mapper);
-        final String hashKeyBob2 = saveItem("bob", newDateValue(), mapper);
+        final String hashKeyAlvaro1 = saveItem("alvaro", dateValue, mapper, "meeting");
+        final String hashKeyAlvaro2 = saveItem("alvaro", newDateValue(), mapper, "headline");
+        final String hashKeyBob1 = saveItem("bob", newDateValue(), mapper, "meeting");
+        final String hashKeyBob2 = saveItem("bob", newDateValue(), mapper, "headline");
 
         // Retrieve the item.
         Komm itemRetrieved = mapper.load(Komm.class, hashKeyAlvaro1, dateValue);
@@ -35,12 +35,12 @@ public class KommsPumper {
     }
 
     @NotNull
-    private static String saveItem(String hashKey, String date, DynamoDBMapper mapper) {
+    private static String saveItem(String hashKey, String date, DynamoDBMapper mapper, String otherTag) {
         Komm item = new Komm();
         item.setAuthor(hashKey);
         item.setDate(date);
         item.setBody("heheh");
-        item.setTags(hashKey + "-" + "meeting");
+        item.setTags(hashKey + "-" + otherTag);
 
         mapper.save(item);
         return hashKey;
