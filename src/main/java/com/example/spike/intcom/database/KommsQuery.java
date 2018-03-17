@@ -23,12 +23,11 @@ public class KommsQuery {
         final AmazonDynamoDB dynamoDB = LocalClient.client;
         DynamoDBMapper mapper = new DynamoDBMapper(dynamoDB);
 
-        System.out.println("Matching items for alvaro:");
+        System.out.println("Matching items:");
         HashMap<String, Condition> queryFilters = new HashMap<>();
         queryFilters.put("tags", new Condition().withComparisonOperator(ComparisonOperator.CONTAINS).withAttributeValueList(new AttributeValue("meeting")));
         //            queryFilters.put("tags", new Condition().withComparisonOperator(ComparisonOperator.NOT_CONTAINS).withAttributeValueList(new AttributeValue("meeting")));
-        Komm komm = new Komm();
-        komm.setAuthor("alvaro");
+        Komm komm = new Komm("bob", "", "", "");
         Map<String, String> aN = new HashMap<>();
         aN.put("#v1", "tags");
         aN.put("#v2", "tags");

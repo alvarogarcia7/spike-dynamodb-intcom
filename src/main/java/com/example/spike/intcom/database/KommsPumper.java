@@ -2,6 +2,8 @@ package com.example.spike.intcom.database;
 
 import java.io.IOException;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -19,10 +21,15 @@ public class KommsPumper {
         DynamoDBMapper mapper = new DynamoDBMapper(dynamoDB);
 
         final String dateValue = newDateValue();
-        final String hashKeyAlvaro1 = saveItem("alvaro", dateValue, mapper, "meeting");
-        final String hashKeyAlvaro2 = saveItem("alvaro", newDateValue(), mapper, "headline");
-        final String hashKeyBob1 = saveItem("bob", newDateValue(), mapper, "meeting");
-        final String hashKeyBob2 = saveItem("bob", newDateValue(), mapper, "headline");
+        final String hashKeyAlvaro1 = saveItem(mapper, "alvaro", dateValue, "meeting");
+        saveItem(mapper, "alvaro", newDateValue(), "meeting");
+        saveItem(mapper, "alvaro", newDateValue(), "meeting");
+        saveItem(mapper, "alvaro", newDateValue(), "headline");
+        saveItem(mapper, "alvaro", newDateValue(), "headline");
+
+        saveItem(mapper, "bob", newDateValue(), "meeting");
+        saveItem(mapper, "bob", newDateValue(), "meeting", "headline");
+        saveItem(mapper, "bob", newDateValue(), "headline");
 
         // Retrieve the item.
         Komm itemRetrieved = mapper.load(Komm.class, hashKeyAlvaro1, dateValue);
@@ -35,13 +42,9 @@ public class KommsPumper {
     }
 
     @NotNull
-    private static String saveItem(String hashKey, String date, DynamoDBMapper mapper, String otherTag) {
-        Komm item = new Komm();
-        item.setAuthor(hashKey);
-        item.setDate(date);
-        item.setBody("heheh");
-        item.setTags(hashKey + "-" + otherTag);
-
+    private static String saveItem(DynamoDBMapper mapper, String hashKey, String date, String... otherTags) {
+        final String tags = Stream.of(otherTags).collect(Collectors.joining("-"));
+        Komm item = new Komm(hashKey, "heheh", tags, date);
         mapper.save(item);
         return hashKey;
     }
