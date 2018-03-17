@@ -19,7 +19,7 @@ public class CreateAllTables {
 
     public static void main(String[] args) throws Exception {
 
-        DynamoDB dynamoDB = new DynamoDB(X.client);
+        DynamoDB dynamoDB = new DynamoDB(LocalClient.client);
 
         String tableName = "Komms";
 
