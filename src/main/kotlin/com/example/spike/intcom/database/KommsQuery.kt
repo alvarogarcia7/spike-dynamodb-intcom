@@ -10,7 +10,7 @@ object KommsQuery {
     @Throws(IOException::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        val tagsValues = listOf("meeting", "headline")
+        val tagsValues = listOf("meeting")
         queryByTagsFilteringOr("bob", tagsValues)
     }
 

@@ -1,10 +1,6 @@
 package com.example.spike.intcom.database;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
 import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
@@ -44,16 +40,12 @@ public class LocalDynamoDB {
         //        }
 
         // Create an in-memory and in-process instance of DynamoDB Local that runs over HTTP
-        AWSCredentialsProvider credentialsProvider = new ProfileCredentialsProvider();
-
         final String[] localArgs = { "-inMemory", "-sharedDb" };
         try {
             server = ServerRunner.createServerFromCommandLineArgs(localArgs);
             server.start();
 
-            dynamoDb = AmazonDynamoDBClientBuilder.standard().withCredentials(credentialsProvider).withEndpointConfiguration(
-                    // we can use any region here
-                    new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "us-west-2")).build();
+            dynamoDb = LocalClient.Companion.getClient();
 
             // use the DynamoDB API over HTTP
             listTables(dynamoDb.listTables(), "DynamoDB Local over HTTP");
