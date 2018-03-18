@@ -11,15 +11,15 @@ object KommsPumper {
     fun main(args: Array<String>) {
         workWithKomms()
     }
-
-    private fun workWithKomms() {
-
         val dynamoDB = LocalClient.client
         val mapper = DynamoDBMapper(dynamoDB)
 
+    private fun workWithKomms() {
+
+
         val dateValue = newDateValue()
         val hashKeyAlvaro1 = saveItem(mapper, "alvaro", dateValue, "meeting")
-        saveItem(mapper, "alvaro", newDateValue(), "meeting")
+        save("alvaro", arrayOf("meeting"))
         saveItem(mapper, "alvaro", newDateValue(), "meeting")
         saveItem(mapper, "alvaro", newDateValue(), "headline")
         saveItem(mapper, "alvaro", newDateValue(), "headline")
@@ -32,6 +32,10 @@ object KommsPumper {
         val itemRetrieved = mapper.load(Komm::class.java, hashKeyAlvaro1, dateValue)
         println("Item retrieved:")
         println(itemRetrieved)
+    }
+
+    fun save(hashKey: String, otherTags: Array<String>) {
+        saveItem(mapper, hashKey, newDateValue(), *otherTags)
     }
 
     private fun newDateValue(): String {

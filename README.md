@@ -4,6 +4,8 @@
 
 ### Running the database
 
-```
-make run-database
-```
+Run the class `LocalDynamoDB`
+
+### Running the tests
+
+Run the class `FullCycleTest`

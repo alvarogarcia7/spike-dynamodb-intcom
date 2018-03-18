@@ -2,6 +2,7 @@ package com.example.spike.intcom.database
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import java.io.IOException
 
@@ -14,7 +15,7 @@ object KommsQuery {
         queryByTagsFilteringOr("bob", tagsValues)
     }
 
-    private fun queryByTagsFilteringOr(username: String, tagsValues: List<String>) {
+    fun queryByTagsFilteringOr(username: String, tagsValues: List<String>): PaginatedQueryList<Komm> {
 
         val dynamoDB = LocalClient.client
         val mapper = DynamoDBMapper(dynamoDB)
@@ -35,5 +36,6 @@ object KommsQuery {
                 DynamoDBQueryExpression<Komm>().withHashKeyValues(komm).withExpressionAttributeNames(attributeNames).withExpressionAttributeValues(values)
                         .withFilterExpression(filterExpression))
         matchingItems.parallelStream().forEach(::println)
+        return matchingItems
     }
 }
